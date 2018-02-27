@@ -4,8 +4,8 @@ import (
 	"golang.org/x/net/context"
 
 	"firebase.google.com/go"
-	"google.golang.org/api/option"
 	"fmt"
+	"google.golang.org/api/option"
 )
 
 func main() {

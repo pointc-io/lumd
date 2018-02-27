@@ -7,5 +7,4 @@ type API struct {
 }
 
 type AllocateIPRequest struct {
-
 }

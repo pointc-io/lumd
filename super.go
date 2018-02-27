@@ -2,9 +2,9 @@ package main
 
 import (
 	"container/list"
-	"sync"
-	"net"
 	"github.com/tendermint/tmlibs/common"
+	"net"
+	"sync"
 )
 
 // Maintains a list of SuperProxies

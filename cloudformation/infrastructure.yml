@@ -75,7 +75,9 @@ Mappings:
         us-west-1:
             AMI: ami-1e299d7e
         us-west-2:
-            AMI: ami-898dd9b9
+            AMI: ami-35d6664d
+#        us-west-2:
+#            AMI: ami-898dd9b9
 #        us-west-2:
 #            AMI: ami-b73d6cd7
         ca-central-1:
@@ -139,61 +141,61 @@ Resources:
     # AutoScaling Group
     ###########################################
 
-#    AutoScalingGroup:
-#        Type: AWS::AutoScaling::AutoScalingGroup
-#        Properties:
-#            VPCZoneIdentifier:
-#                - !Ref PrivateSubnet1
-#                - !Ref PrivateSubnet2
-#            LaunchConfigurationName: !Ref LaunchConfiguration
-#            TargetGroupARNs:
-#                - !Ref TargetGroup
-#            MinSize: !Ref InstanceCount
-#            MaxSize: !Ref InstanceCount
-#            DesiredCapacity: !Ref InstanceCount
-#            Tags:
-#                - Key: Name
-#                  Value: !Sub ${ApplicationName}-${EnvironmentName}
-#                  PropagateAtLaunch: true
-#        CreationPolicy:
-#            ResourceSignal:
-#                Timeout: PT30M
-#        UpdatePolicy:
-#            AutoScalingRollingUpdate:
-#                MinInstancesInService: 1
-#                MaxBatchSize: 1
-#                PauseTime: PT15M
-#                WaitOnResourceSignals: true
-#
-#    LaunchConfiguration:
-#        Type: AWS::AutoScaling::LaunchConfiguration
-#        Properties:
-#            ImageId:  !FindInMap [AWSRegionToAMI, !Ref "AWS::Region", AMI]
-#            InstanceType: !Ref InstanceType
-#            IamInstanceProfile: !Ref InstanceProfile
-#            SecurityGroups:
-#                - !Ref ApplicationSecurityGroup
-#            UserData: !
-#                "Fn::Base64": !Sub
-#                    - |+
-#                        #!/bin/bash
-#
-#                        # Set up a CloudFormation wait signal, so we can notify when the CodeDeploy agent is running
-#                        yum install -y aws-cfn-bootstrap
-#                        /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration
-#
-#                        # Install CodeDeploy agent
-#                        yum -y update
-#                        yum install -y ruby
-#                        cd /home/ec2-user
-#                        curl -O https://${InstallerBucket}.s3.amazonaws.com/latest/install
-#                        chmod +x ./install
-#                        ./install auto
-#
-#                        # Send a success/failure signal to CloudFormation based on the exit status of the last command
-#                        /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
-#                    - InstallerBucket:
-#                        Fn::FindInMap: [ CodeDeployInstallerBuckets, !Ref "AWS::Region", Bucket]
+    AutoScalingGroup:
+        Type: AWS::AutoScaling::AutoScalingGroup
+        Properties:
+            VPCZoneIdentifier:
+                - !Ref PrivateSubnet1
+                - !Ref PrivateSubnet2
+            LaunchConfigurationName: !Ref LaunchConfiguration
+            TargetGroupARNs:
+                - !Ref TargetGroup
+            MinSize: !Ref InstanceCount
+            MaxSize: !Ref InstanceCount
+            DesiredCapacity: !Ref InstanceCount
+            Tags:
+                - Key: Name
+                  Value: !Sub ${ApplicationName}-${EnvironmentName}
+                  PropagateAtLaunch: true
+        CreationPolicy:
+            ResourceSignal:
+                Timeout: PT15M
+        UpdatePolicy:
+            AutoScalingRollingUpdate:
+                MinInstancesInService: 1
+                MaxBatchSize: 1
+                PauseTime: PT15M
+                WaitOnResourceSignals: true
+
+    LaunchConfiguration:
+        Type: AWS::AutoScaling::LaunchConfiguration
+        Properties:
+            ImageId:  !FindInMap [AWSRegionToAMI, !Ref "AWS::Region", AMI]
+            InstanceType: !Ref InstanceType
+            IamInstanceProfile: !Ref InstanceProfile
+            SecurityGroups:
+                - !Ref ApplicationSecurityGroup
+            UserData: !
+                "Fn::Base64": !Sub
+                    - |+
+                        #!/bin/bash
+
+                        # Set up a CloudFormation wait signal, so we can notify when the CodeDeploy agent is running
+                        yum install -y aws-cfn-bootstrap
+                        /opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource LaunchConfiguration
+
+                        # Install CodeDeploy agent
+                        yum -y update
+                        yum install -y ruby
+                        cd /home/ec2-user
+                        curl -O https://${InstallerBucket}.s3.amazonaws.com/latest/install
+                        chmod +x ./install
+                        ./install auto
+
+                        # Send a success/failure signal to CloudFormation based on the exit status of the last command
+                        /opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource AutoScalingGroup
+                    - InstallerBucket:
+                        Fn::FindInMap: [ CodeDeployInstallerBuckets, !Ref "AWS::Region", Bucket]
 
     ###########################################
     # Load Balancer

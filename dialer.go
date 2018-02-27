@@ -11,5 +11,3 @@ import (
 // dialing a SuperProxy with a new Global SessionID.
 type SuperProxyDialer struct {
 }
-
-
